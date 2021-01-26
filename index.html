@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Čitanje podataka o studentima</title>
+
+	<style>
+
+		#loader {
+			display: inline-block;
+			width: 18px;
+			height: 18px;
+			display: none;
+		}
+
+		#loader:after {
+			content: " ";
+			display: block;
+			width: 18px;
+			height: 18px;
+			margin: 2px;
+			border-radius: 50%;
+			border: 2px solid #241f1f;
+			border-color: #241f1f transparent #241f1f transparent;
+			animation: lds-dual-ring 1.2s linear infinite;
+		}
+
+		@keyframes lds-dual-ring {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		#my-text-area {
+			display: block;
+			width: 100%;
+			margin-top: 16px;
+		}
+
+	</style>
+</head>
+<body>
+
+	<button id="get-text-btn">Get Data</button>
+	<div id="loader"></div>
+	<textarea id="my-text-area" rows="30"></textarea>
+	
+	<script>
+		let button = document.getElementById("get-text-btn");
+		let textArea = document.getElementById("my-text-area");
+		let loader = document.getElementById("loader");
+		button.addEventListener("click", function () {
+			getData();
+		});
+
+		class Student {
+			constructor(name, address, phone, course) {
+				this.name = name;
+				this.address = address;
+				this.phone = phone;
+				this.course = course;
+			}
+
+			getInfo() {
+				return "\n" +
+				"Name: " + this.name + "\n" + 
+				"Address: " + this.address + "\n" +
+				"Phone: " + this.phone + "\n" +
+				"Course: " + this.course + "\n"
+			}
+		}
+
+		async function getData() {
+			try {
+				loader.style.display = "inline-block";
+				let response = await fetch("https://v-dresevic.github.io/Advanced-JavaScript-Programming/data/students.txt");
+				if (response.status !== 200) {
+					throw new Error("Error while reading file");
+				}
+				let text = await response.text();
+				let infoStud = text.split("\r\n");
+				splitLine(infoStud);
+			} catch (err) {
+				textArea.innerHTML = "Fetch problem " + err.message;
+			} finally {
+				loader.style.display = "none";
+			}
+		}
+
+		function splitLine(info) {
+			while (info.length > 0) {
+				let x = info.splice(0, 4);
+				let students = new Student(x[0], x[1], x[2], x[3]);
+				textArea.innerHTML += students.getInfo();
+			}
+		}
+
+	</script>
+	
+</body>
+</html>
